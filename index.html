@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>パーソナル神様診断｜鑑定士専用ツール</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Yu Gothic", "Hiragino Sans", sans-serif;
+      padding: 20px;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.7;
+      color: #222;
+      background: #fdf9ff;
+      background-image: url("bg.jpg");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+    .app-container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 18px 16px 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      margin-top: 12px;
+    }
+    h1 {
+      font-size: 1.6rem;
+      text-align: center;
+      margin: 0 0 0.4rem;
+    }
+    .subtitle {
+      font-size: 0.9rem;
+      text-align: center;
+      opacity: 0.8;
+      margin-bottom: 1.2rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    input[type="date"] {
+      width: 100%;
+      padding: 0.6rem;
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      background: #fff;
+    }
+    .note {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-bottom: 0.9rem;
+    }
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #d3b3ff, #f4c7ff);
+      font-weight: 600;
+    }
+    button:active {
+      opacity: 0.85;
+    }
+    #result {
+      margin-top: 1.5rem;
+      padding: 1.2rem 1rem 1.3rem;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .result-title {
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    .deity-name {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 0.4rem;
+      text-align: center;
+    }
+    .deity-image-wrap {
+      text-align: center;
+      margin-bottom: 0.8rem;
+    }
+    .deity-image-wrap img {
+      max-width: 100%;
+      max-height: 220px;
+      border-radius: 14px;
+      object-fit: cover;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    }
+    .keyword {
+      font-size: 0.9rem;
+      margin-bottom: 0.9rem;
+      opacity: 0.85;
+      text-align: center;
+    }
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-top: 0.4rem;
+      margin-bottom: 0.2rem;
+      border-left: 3px solid #d3b3ff;
+      padding-left: 0.4rem;
+    }
+    .section-text {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    .shrine-list {
+      font-size: 0.9rem;
+      margin: 0.2rem 0 0.3rem 1rem;
+      padding: 0;
+    }
+    .shrine-list li {
+      margin-bottom: 0.12rem;
+    }
+    .footer-note {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.6rem;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <h1>パーソナル神様診断</h1>
+    <div class="subtitle">ご縁の深い神様をお伝えする鑑定士専用ツール</div>
+
+    <label for="birthday">生年月日</label>
+    <input type="date" id="birthday">
+
+    <div class="note">※ 節分（2月3日）以前生まれの方は、前年生まれとして自動計算されます。</div>
+
+    <button id="diagnoseBtn">ご縁のある神様を診断する</button>
+
+    <div id="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    // ===== ご縁の神様データ（本命星 1〜9） =====
+    const deityTable = {
+      1: {
+        starName: "一白水星",
+        deityName: "月読命（つくよみのみこと）",
+        keyword: "静寂・調和・浄化",
+        merit: "月読命は「調和・浄化・内なる叡智」を司る神。感情や潜在意識の影や迷いを静かに鎮め、あなたが本来のリズムに戻るよう導きます。直感やインスピレーションを高め、人生の本質に気づかせてくれる存在。不安や停滞をやわらげ、心の平穏から運の流れを整える力を持ちます。",
+        shrineIntro: "次のような月読命ゆかりの神社がおすすめです：",
+        shrines: [
+          "月読神社（京都）",
+          "月讀神社（長崎・壱岐）",
+          "月読命をお祀りする全国の神社"
+        ],
+        image: "tsukuyomi.png",
+      },
+      2: {
+        starName: "二黒土星",
+        deityName: "豊受大神（とようけのおおかみ）",
+        keyword: "豊穣・安定・衣食住",
+        merit: "豊受大神は「衣食住・生活基盤の守護」「豊かさの育成」を司る神。暮らし・家庭・仕事など“日常の土台”を整えることで、現実の豊かさを引き寄せます。不足感や不安を解消し、安心して前へ進める環境を整える力がある神。現実面での繁栄・安定・安全を授ける、実直で温かな守護神です。",
+        shrineIntro: "次のような豊受大神ゆかりの神社がおすすめです：",
+        shrines: [
+          "伊勢神宮（外宮）",
+          "豊受大神をお祀りする全国の神社"
+        ],
+        image: "toyoke.png",
+      },
+      3: {
+        starName: "三碧木星",
+        deityName: "木花咲耶姫命（このはなさくやひめのみこと）",
+        keyword: "開花・新しい始まり・美",
+        merit: "木花咲耶姫命は「開花」「新しい始まり」「生命の輝き」を象徴する神。物事を一気に花開かせ、チャンスやご縁を華やかに引き寄せるエネルギーを持ちます。心に芽生えた“やりたいこと”を形にする後押しをし、若々しさや美しさも守護。新たなステージの扉を開く時に最も強く働く、軽やかで華やかな神です。",
+        shrineIntro: "次のような木花咲耶姫命ゆかりの神社がおすすめです：",
+        shrines: [
+          "富士山本宮浅間大社（静岡）",
+          "各地の浅間神社（浅間大社・浅間神社）"
+        ],
+        image: "konohanasakuya.png",
+      },
+      4: {
+        starName: "四緑木星",
+        deityName: "志那都比売命（しなつひめのみこと）",
+        keyword: "風・ご縁・循環",
+        merit: "志那都比売命は「風・循環・ご縁・浄化」を司る神。滞りを解き、新しい風を呼び込み、人間関係に軽やかな調和をもたらします。旅・移動・変化の運を後押しし、新しい出会いと機会を引き寄せる力を持つ神。流れが変わるタイミングに強く働き、環境を整え前進を促してくれる存在です。",
+        shrineIntro: "次のような風の神ゆかりの神社がおすすめです：",
+        shrines: [
+          "伊勢神宮 内宮 別宮「風日祈宮（かざひのみのみや）」",
+          "風の神・天候の神をお祀りする全国の神社"
+        ],
+        image: "shinatsuhime.png",
+      },
+      5: {
+        starName: "五黄土星",
+        deityName: "伊邪那岐命（いざなぎのみこと）",
+        keyword: "再生・浄化・決断",
+        merit: "伊邪那岐命は「再生」「禊ぎ」「始源の力」を象徴する創造神。不要な縁・思考・環境を手放し、本来の純粋な魂へ戻す強力な浄化力を持ちます。人生の転換期、“終わりと始まり”の場面に深く関わる変容の神。影を祓い、新しい光の方向へと人生をリセットし導いてくれる存在です。",
+        shrineIntro: "次のような伊邪那岐命ゆかりの神社がおすすめです：",
+        shrines: [
+          "伊弉諾神宮（兵庫）",
+          "多賀大社（滋賀）",
+          "伊邪那岐命をお祀りする全国の神社"
+        ],
+        image: "izanagi.png",
+      },
+      6: {
+        starName: "六白金星",
+        deityName: "天照大御神（あまてらすおおみかみ）",
+        keyword: "光・使命・繁栄",
+        merit: "天照大御神は「光」「生命力」「使命」「繁栄」を司る日本の最高神。迷いや停滞を照らし、本来の道へ戻す強烈な浄化・再生の光を持ちます。表現力・リーダーシップ・影響力を高め、周囲を温め照らす存在。成功・復活・飛躍のタイミングに最も強く働く、太陽の神です。",
+        shrineIntro: "次のような天照大御神ゆかりの神社がおすすめです：",
+        shrines: [
+          "伊勢神宮（内宮）",
+          "天照大御神をお祀りする全国の神社"
+        ],
+        image: "amaterasu.png",
+      },
+      7: {
+        starName: "七赤金星",
+        deityName: "天鈿女命（あめのうずめのみこと）",
+        keyword: "喜び・社交・表現",
+        merit: "天鈿女命は「喜び」「芸能」「魅力開花」を司る神。心の曇り・重さを取り除き、笑顔と軽やかさを取り戻す力があります。人間関係を円満にし、華やぎや愛嬌を引き出し、人と場を明るくする存在。自己表現・創造性・コミュニケーションの分野でも力を発揮する神です。",
+        shrineIntro: "次のような天鈿女命ゆかりの神社がおすすめです：",
+        shrines: [
+          "椿大神社（三重）",
+          "天鈿女命をお祀りする全国の神社",
+          "芸能・表現の神社"
+        ],
+        image: "amenouzume.png",
+      },
+      8: {
+        starName: "八白土星",
+        deityName: "大山祇神（おおやまつみのかみ）",
+        keyword: "守護・成長・土台",
+        merit: "大山祇神は「山」「守護」「安定」「基盤形成」を象徴する神。長期的な成功・財・健康に関わり、じっくり育てる力を授けます。焦りを鎮め、どっしりと構える精神力と持久力を与える存在。家族守護・基盤運・人生の“根”を強くする神です。",
+        shrineIntro: "次のような大山祇神ゆかりの神社がおすすめです：",
+        shrines: [
+          "大山祇神社（愛媛・大三島）",
+          "大山祇神をお祀りする全国の神社",
+          "山・大地の神社"
+        ],
+        image: "ooyamatsumi.png",
+      },
+      9: {
+        starName: "九紫火星",
+        deityName: "龍神（赤龍）",
+        keyword: "情熱・美的感性・強運",
+        merit: "龍神（赤龍）は「情熱」「美的感性」「強運」を司る守護神。燃えるような生命力を呼び覚まし、迷いや不安を一気に祓って前進させる力があります。美しく生きること・情熱を注ぐことに強く反応し、魅力とカリスマ性を高める存在。願望成就・引き寄せ・ステージアップなど、運命の加速が最も起きやすい神です。",
+        shrineIntro: "次のような龍神ゆかりの神社がおすすめです：",
+        shrines: [
+          "箱根 九頭龍神社",
+          "貴船神社（京都）",
+          "江島神社（神奈川）",
+          "田無神社（東京・五龍神）",
+          "龍神・龍王をお祀りする全国の神社"
+        ],
+        image: "sekiryu.png",
+      },
+    };
+
+    // 数字を1桁になるまで足す
+    function digitSum(n) {
+      let s = 0;
+      for (const ch of String(n)) {
+        s += Number(ch);
+      }
+      return s;
+    }
+
+    // 本命星を計算（1〜9を返す）
+    function getHonmeiStar(year, month, day) {
+      // 節分基準：1/1〜2/3生まれは前年として計算
+      if (month === 1 || (month === 2 && day <= 3)) {
+        year = year - 1;
+      }
+
+      // 西暦4桁の数字を足して、1桁になるまで足す
+      let sum = digitSum(year);
+      while (sum >= 10) {
+        sum = digitSum(sum);
+      }
+
+      // 11 から引く（九星の1〜9に対応）
+      let n = 11 - sum;
+      if (n === 10) n = 1;
+      if (n <= 0) {
+        n = ((n % 9) + 9) % 9;
+        if (n === 0) n = 9;
+      }
+      return n; // 1〜9
+    }
+
+    // ボタンクリックで診断
+    document.getElementById("diagnoseBtn").addEventListener("click", () => {
+      const input = document.getElementById("birthday").value;
+      if (!input) {
+        alert("生年月日を入力してください。");
+        return;
+      }
+
+      const [year, month, day] = input.split("-").map(Number);
+      const star = getHonmeiStar(year, month, day);
+      const info = deityTable[star];
+
+      const resultDiv = document.getElementById("result");
+
+      if (!info) {
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = "<p>この星の神様データは、現在準備中です。</p>";
+        return;
+      }
+
+      const imgHtml = info.image
+        ? `<div class="deity-image-wrap">
+             <img src="${info.image}" alt="${info.deityName}のイメージ">
+           </div>`
+        : "";
+
+      const shrineListHtml = info.shrines && info.shrines.length
+        ? `<ul class="shrine-list">
+            ${info.shrines.map(s => `<li>${s}</li>`).join("")}
+           </ul>`
+        : "";
+
+      resultDiv.style.display = "block";
+      resultDiv.innerHTML = `
+        <div class="result-title">あなたにご縁のある神様は</div>
+        <div class="deity-name">${info.deityName}</div>
+        ${imgHtml}
+        <div class="keyword">キーワード：${info.keyword}</div>
+
+        <div class="section-title">ご神徳</div>
+        <div class="section-text">${info.merit}</div>
+
+        <div class="section-title">参拝すると良い神社</div>
+        <div class="section-text">${info.shrineIntro}</div>
+        ${shrineListHtml}
+
+       
+      `;
+    });
+  </script>
+</body>
+</html>
